@@ -1,0 +1,5 @@
+export const HTTP_DEFAULT_TEXT = '数据获取';
+export const HTTP_SUCCESS_PREFIX = '成功';
+export const HTTP_ERROR_PREFIX = '失败';
+export const HTTP_SUCCESS_TEXT = HTTP_DEFAULT_TEXT + HTTP_SUCCESS_PREFIX;
+export const HTTP_ERROR_TEXT = HTTP_DEFAULT_TEXT + HTTP_ERROR_PREFIX;

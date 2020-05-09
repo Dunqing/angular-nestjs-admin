@@ -1,0 +1,48 @@
+{
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/equipment-leasing/src",
+  "monorepo": true,
+  "root": "apps/equipment-leasing",
+  "compilerOptions": {
+    "webpack": true,
+    "tsConfigPath": "apps/equipment-leasing/tsconfig.app.json"
+  },
+  "projects": {
+    "ela": {
+      "type": "application",
+      "root": "apps/equipment-leasing-admin",
+      "entryFile": "main",
+      "sourceRoot": "apps/equipment-leasing-admin/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/equipment-leasing-admin/tsconfig.app.json"
+      }
+    },
+    "els": {
+      "type": "application",
+      "root": "apps/equipment-leasing-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/equipment-leasing-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/equipment-leasing-service/tsconfig.app.json"
+      }
+    },
+    "database": {
+      "type": "library",
+      "root": "libs/database",
+      "entryFile": "index",
+      "sourceRoot": "libs/database/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/database/tsconfig.lib.json"
+      }
+    },
+    "common": {
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
+      }
+    }
+  }
+}
