@@ -2,6 +2,11 @@ import { pre, prop, Ref, plugin, arrayProp, modelOptions } from '@typegoose/type
 import {
   IsString,
   IsEnum,
+  IsNotEmpty,
+  ArrayUnique,
+  ArrayNotEmpty,
+  IsArray,
+  IsOptional,
 } from 'class-validator';
 import { AutoIncrementID } from '@typegoose/auto-increment';
 import { Types } from 'mongoose';
@@ -10,6 +15,11 @@ import { User } from '../user/user.model';
 enum MetaStatus {
   No,
   Yes,
+}
+
+export enum MenuType  {
+  Menu = 0,
+  Button = 1
 }
 
 @modelOptions({
@@ -58,24 +68,39 @@ export class Menu {
   @prop({ ref: 'User', default: null })
   creatorId: Ref<User>;
 
-  @IsString({ message: '路由地址必须填写' })
+  @IsString({ message: '名称必须填写' })
   @prop({ required: true })
-  path: string; // 路由地址
+  name: string; // 路由地址
+
+  @IsString({ message: '路由地址必须填写' })
+  @prop({ default: '' })
+  path?: string; // 路由地址
+
+  @IsEnum(MenuType, { message: '类型必须填写正确' })
+  @prop({ required: true, enum: MenuType })
+  type: MenuType; // 路由地址
+
+  @IsOptional()
+  @IsString({ message: '权限标识符必须填写字符串' })
+  @prop({ default: '' })
+  permissionIdentifier?: string; // 路由地址
 
   @prop({ default: 1 })
   sort: number; //排序用
 
-  @prop()
-  redirect: string; // 跳转路由
-
-  @prop({ required: true })
-  componentPath: string; // 组件地址
+  @prop({ default: '' })
+  componentPath?: string; // 组件地址
 
   @prop({ ref: Menu, default: null })
   pid: Types.ObjectId;
-  // @arrayProp({ items: Menu, default: [] })
-  // children: Ref<Menu>[] // 子菜单
 
   @prop({ required: true, _id: false })
-  meta: RouteMeta; // meta 选项
+  meta?: RouteMeta; // meta 选项
+}
+
+export class DelMenus {
+  @IsArray({ message: 'menuIds要是数组 example: menuIds: [id1, id2, id3]'})
+  @ArrayUnique({ message: 'id有重复'})
+  @ArrayNotEmpty({ message: '要删除的菜单id不能为空'})
+  menuIds: Types.ObjectId[]
 }

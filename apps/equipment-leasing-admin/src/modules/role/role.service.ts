@@ -3,10 +3,10 @@ import { Role, AssigningRoles } from './role.model';
 import { InjectModel } from 'nestjs-typegoose';
 import { MongooseModel } from '../../interfaces/mongoose.interface';
 import { User } from '../user/user.model';
-import { DocumentType } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
 import { RoleMenu, AssigningMenus } from '../model/role-menu.model';
 import { MenuService } from '../menu/menu.service';
+import { MenuType } from '../menu/menu.model';
 
 @Injectable()
 export class RoleService {
@@ -17,17 +17,35 @@ export class RoleService {
     private readonly roleMenuModel: MongooseModel<RoleMenu>,
     private readonly menuService: MenuService,
   ) {}
-
-  createRole(data: Role): Promise<Role> {
-    return this.roleModel.create(data);
+  
+  createRole(_id: Types.ObjectId, data: Role): Promise<Role> {
+    return this.roleModel.create({
+      ...data,
+      creatorId: _id
+    });
+  }
+  
+  delRole(roleIds: Types.ObjectId[]): any {
+    return this.roleModel.deleteMany({
+      _id: { $in: roleIds }
+    })
   }
 
-  updateRole(id: number, data: Role): Promise<Role> {
+  updateRole(id: Types.ObjectId, data: Role): Promise<Role> {
     return this.roleModel.findOneAndUpdate({ id }, data, { new: true }).exec();
   }
 
-  async roleList(): Promise<any> {
-    const roles = await this.roleModel.aggregate([
+  async roleList(childrenIds): Promise<any> {
+    if (childrenIds) {
+      return this.roleModel.find({ creatorId: { $in: childrenIds } })
+    }
+    return this.roleModel.find()
+  }
+
+
+  async paginateList(querys: any, options: any): Promise<any> {
+    const roles = this.roleModel.aggregate([
+      ...querys,
       {
         $lookup: {
           from: 'rolemenus', //关联查询表2
@@ -45,26 +63,24 @@ export class RoleService {
         },
       },
     ]);
-    for (const role of roles) {
+    const paginate = await (this.roleModel as any).aggregatePaginate(roles, options)
+    for (const role of paginate.docs) {
       role.menus = await this.menuService.getMergeMenu(null, role.menus);
     }
-    return roles;
+    return paginate
   }
 
   async assigningRoles(data: AssigningRoles): Promise<any> {
-    const roles: any[] = await this.roleModel
-      .find({ id: { $in: data.roleId } })
-      .exec();
-    const rolesId: any[] = roles.map(item => new Types.ObjectId(item._id));
-    return this.userModel.findOneAndUpdate(
-      { id: data.userId },
-      { roles: rolesId },
+    // const rolesId: any[] = data.roleIds.map(id => new Types.ObjectId(id));
+    return this.userModel.findByIdAndUpdate(
+      data.userId,
+      { roles: data.roleIds },
       { new: true },
     );
   }
 
   async assigningMenus(data: AssigningMenus): Promise<any> {
-    const insertList = data.menuId.map(_id => {
+    const insertList = data.menuIds.map((_id) => {
       return {
         roleId: data.roleId,
         menuId: _id,

@@ -10,6 +10,7 @@ import { MenuService } from '../menu/menu.service';
 import { RoleMenu } from '../model/role-menu.model';
 import { Types } from 'mongoose';
 import { SUPER_ADMIN_ID } from '../../constants/meta.constant';
+import { MenuType, Menu } from '../menu/menu.model';
 
 @Injectable()
 export class UserService {
@@ -31,32 +32,106 @@ export class UserService {
         creatorId,
       });
     } else {
-      console.log(hasUser);
+      // console.log(hasUser);
       return Promise.reject('用户已存在！');
     }
   }
 
-  async getUserById(_id: string): Promise<User> {
-    return this.userModel
-      .findById(_id)
-      .populate('roles')
-      .exec();
+  async DelUsers(canDelIds: Types.ObjectId[], userIds: Types.ObjectId[]): Promise<any> {
+    const users = this.userModel.find({
+      $and: [
+        {
+          _id: {
+            $in: canDelIds
+          }
+        },
+        {
+          _id: {
+            $in: userIds
+          }
+        }
+      ]
+    }).exec().then((users) => {
+      console.log(users)
+    })
+    // console.log(users)
+    // return this.userModel.deleteMany({ _id: { $in: userIds } });
   }
 
-  /**
-   * 
-   * @param currentId {
-  "username": "string",
-"nickname": "woaini1",
-"password": "123456",
-"phoneNumber": "15917033340"
-}
-   */
-  async getUserChildrenId(currentId: Types.ObjectId) {
+  async getUserById(_id: string): Promise<any> {
+    return await this.userModel.aggregate([
+      {
+        $match: {
+          _id: { $eq: Types.ObjectId(_id) },
+        }
+      },
+      {
+        $lookup: {
+          from: 'roles',
+          localField: 'roles',
+          foreignField: '_id',
+          as: 'roles',
+        },
+      },
+      {
+        $lookup: {
+          from: 'rolemenus', //关联查询表2
+          localField: 'roles._id', //关联表1的商品编号ID
+          foreignField: 'roleId', //匹配表2中的ID与关联表1商品编号ID对应
+          as: 'menus', //满足 localField与foreignField的信息加入orderlists集合
+        },
+      },
+      {
+        $lookup: {
+          from: 'menus', //关联查询表2
+          // localField: 'menus.menuId', //关联表1的商品编号ID
+          // foreignField: '_id', 
+          let: { menus: "$menus" },
+          pipeline: [
+            {
+              $match: { 
+                $expr: {
+                  $and: [
+                    {
+                      $ne: ["$permissionIdentifier", ""],
+                    },
+                    {
+                      $eq: ["$type", 1],
+                    },
+                    {
+                      $in: ["$_id", "$$menus.menuId" ]
+                    }
+                  ]
+                }
+              },
+            },
+            {
+              $sort: {
+                sort: 1
+              }
+            }
+          ],
+          as: 'menus', //满足 localField与foreignField的信息加入orderlists集合
+        },
+      },
+      {
+        $addFields: {
+          permissionIdentifierList: '$menus.permissionIdentifier'
+        }
+      },
+      {
+        $project: {
+          'menus': 0
+        }
+      }
+    ]);
+  }
+
+  async getUserChildrenId(currentUserId: Types.ObjectId, includeMe = true) {
     const userList = await this.userModel.aggregate([
       {
         $match: {
-          _id: { $eq: currentId },
+          _id: { $eq: currentUserId },
         },
       },
       {
@@ -65,31 +140,16 @@ export class UserService {
           startWith: '$_id',
           connectFromField: '_id',
           connectToField: 'creatorId',
-          as: 'userId',
+          as: 'users',
         },
       },
       {
-        $group: {
-          _id: '$userId',
-          users: {
-            $addToSet: '$userId._id',
-          },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          users: 1,
-        },
-      },
-      {
-        $unwind: {
-          path: '$users',
-        },
-      },
-    ]);
-    console.log(userList[0]?.users);
-    return userList[0]?.users;
+        $addFields: {
+          userIds: '$users._id'
+        }
+      }
+    ]).exec();
+    return includeMe ? [ ...userList[0].userIds, userList[0]._id ]: userList[0]?.userIds;
   }
 
   async adminLogin(userData: UserLogin): Promise<any> {
@@ -108,9 +168,6 @@ export class UserService {
   }
 
   async currentUserMenu(user: any): Promise<any> {
-    if (user.superAdmin) {
-      return this.menuService.getMergeMenu()
-    }
     const roles = user.roles.map(item => {
       return item._id;
     });
@@ -140,10 +197,14 @@ export class UserService {
       },
       {
         $sort: {
-          sort: 1
-        }
-      }
+          sort: 1,
+        },
+      },
     ]);
+    // console.log(!menusObject[0].menus.length)
+    if (!menusObject[0].menus.length) {
+      return [];
+    }
     const menus = menusObject.map(item => {
       return item.menus[0];
     });

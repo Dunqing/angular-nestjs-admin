@@ -9,20 +9,22 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './passport/jwt.strategy';
 import { MenuModule } from '../menu/menu.module';
 import { RoleMenu } from '../model/role-menu.model';
-
 @Module({
   imports: [
     TypegooseModule.forFeature([User, RoleMenu]),
     PassportModule,
     MenuModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: {
-        expiresIn: Number(process.env.EXPIRES_TIME),
-      },
+    JwtModule.registerAsync({
+      useFactory: () => ({
+        secret: process.env.JWT_SECRET,
+        signOptions: {
+          expiresIn: Number(process.env.EXPIRES_TIME),
+        }
+      })
     }),
   ],
   controllers: [UserController],
   providers: [UserService, LocalStrategy, JwtStrategy],
+  exports: [UserService]
 })
 export class UserModule {}

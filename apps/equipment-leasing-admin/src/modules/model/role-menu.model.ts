@@ -32,6 +32,7 @@ export class RoleMenu extends TimeStamps {
 
   @prop({ ref: Menu, required: true })
   menuId: Types.ObjectId;
+  
 }
 
 export class AssigningMenus {
@@ -41,5 +42,5 @@ export class AssigningMenus {
   @IsArray()
   @ArrayNotEmpty()
   @ArrayUnique()
-  menuId: Array<number>;
+  menuIds: Array<number>;
 }

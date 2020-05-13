@@ -1,5 +1,5 @@
 import { isString } from 'lodash';
-import { mongoosePaginate } from '../../transformers/model.transformers';
+import { mongoosePaginate, mongooseAggregatePaginateV2 } from '../../transformers/model.transformers';
 import { pre, prop, Ref, plugin } from '@typegoose/typegoose';
 import {
   IsDefined,
@@ -12,18 +12,24 @@ import {
   IsNotEmpty,
   IsNumber,
   IsArray,
+  ArrayUnique,
+  ArrayNotEmpty,
 } from 'class-validator';
 import { AutoIncrementID } from '@typegoose/auto-increment';
 import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import { hashSync } from 'bcryptjs';
+import { Types } from 'mongoose';
 
 @plugin(AutoIncrementID, {
   field: 'id',
   startAt: 1,
   incrementBy: 1,
 })
-@plugin(mongoosePaginate)
+@plugin(mongooseAggregatePaginateV2)
 export class Role extends TimeStamps {
+
+  _id: any;
+
   @prop()
   id?: number;
 
@@ -41,9 +47,16 @@ export class Role extends TimeStamps {
 
 export class AssigningRoles {
   @IsNotEmpty({ message: '用户id不可以为空' })
-  @IsNumber({}, { message: 'id必须为数字' })
-  userId: number;
-  @IsNotEmpty({ message: '角色id不可以为空' })
-  @IsNumber({}, { each: true, message: 'id必须为数字' })
-  roleId: Array<number>;
+  userId: Types.ObjectId;
+
+  @IsArray({ message: '必须是数组' })
+  @ArrayUnique({ message: '角色id不能重复' })
+  roleIds: Types.ObjectId[];
+}
+
+export class DelRoles {
+  @IsArray({ message: '必须是数组' })
+  @ArrayUnique({ message: '角色id不能重复' })
+  @ArrayNotEmpty({ message: '要删除的菜单id不能为空'})
+  roleIds: Types.ObjectId[]
 }

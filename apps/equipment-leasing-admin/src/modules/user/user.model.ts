@@ -9,6 +9,9 @@ import {
   IsUrl,
   MinLength,
   IsNotEmpty,
+  ArrayNotEmpty,
+  IsArray,
+  ArrayUnique
 } from 'class-validator';
 import { AutoIncrementID } from '@typegoose/auto-increment';
 import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
@@ -76,7 +79,7 @@ export class User extends TimeStamps {
   @IsPhoneNumber('CN', {
     message: '你的手机号？',
   })
-  @prop({ default: null, validate: /\d{11}/ })
+  @prop({ default: '', validate: /\d{11}/ })
   phoneNumber?: string;
 
   @prop({ default: Date.now })
@@ -110,4 +113,11 @@ export class UserLogin {
   @IsString({ message: '请正确输入账号' })
   @MinLength(6, { message: '密码最少6位' })
   password!: string;
+}
+
+export class DelUsers {
+  @IsArray({ message: '必须是数组' })
+  @ArrayUnique({ message: '用户id不能重复' })
+  @ArrayNotEmpty({ message: '用户id不能为空 '})
+  userIds: Types.ObjectId[];
 }

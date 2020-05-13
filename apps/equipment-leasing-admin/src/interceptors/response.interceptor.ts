@@ -16,16 +16,16 @@ import { PaginateResult } from 'mongoose';
 
 // 转换为标准的数据结构
 export function transformDataToPaginate<T>(
-  data: PaginateResult<T>,
+  data: any,
   request?: any,
 ): HttpPaginateOption<T[]> {
   return {
-    data: data.docs,
+    data: data.docs || data,
     paginateParams: request ? request.paginateParams : null,
     pagination: {
-      total: data.total,
+      total: data.totalDocs,
       currentPage: data.page,
-      totalPage: data.pages,
+      totalPage: data.totalPages,
       limit: data.limit,
     },
   };

@@ -1,6 +1,6 @@
 import { ErrorsInterceptor } from './interceptors/errors.interceptor';
 import { ResponseInterceptor } from './interceptors/response.interceptor';
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory, Reflector, HttpAdapterHost } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from 'libs/pipes/validation.pipe';
@@ -31,7 +31,7 @@ async function bootstrap() {
   const ip = 'http://127.0.0.1';
   const port = process.env.ELA_PORT || 3301;
   console.log(`${ip}:${port}/api-doc`, '文档地址');
-
+  
   await app.listen(port);
 }
 bootstrap();

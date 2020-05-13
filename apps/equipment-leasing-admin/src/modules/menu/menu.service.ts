@@ -4,34 +4,79 @@ import { Menu } from './menu.model';
 import { MongooseModel } from '../../interfaces/mongoose.interface';
 import { Types, Model } from 'mongoose';
 import { DocumentType } from '@typegoose/typegoose';
+import { RoleMenu } from '../model/role-menu.model';
+import { SUPER_ROLE_ID } from '../../constants/meta.constant';
 
 @Injectable()
 export class MenuService {
   constructor(
-  @InjectModel(Menu) private readonly menuModel: MongooseModel<Menu>,
+    @InjectModel(Menu) private readonly menuModel: MongooseModel<Menu>,
+    @InjectModel(RoleMenu) private readonly roleMenuModel: MongooseModel<RoleMenu>,
   ) {}
     
-  async updateMenu(data: Menu): Promise<Menu> {
-    // return
-    const id = data._id
-    Reflect.deleteProperty(data, '_id')
-    Reflect.deleteProperty(data, 'id')
-    Reflect.deleteProperty(data, 'pid')
-    Reflect.deleteProperty(data, '__v')
-    console.log(id, data, 'top')
-    const menu = await this.menuModel.findById(id)
-    console.log(menu, 'menu')
-    const a = await this.menuModel.findByIdAndUpdate(id, data, { new: true })  
-    console.log(a, 123)
-    return a
+  async updateMenu(id: Types.ObjectId, data: Menu): Promise<Menu> {
+    return this.menuModel.findByIdAndUpdate(id, data, { new: true })  
+  }
+
+  async deleteMenu(menuIds: Types.ObjectId[]): Promise<any> {
+    menuIds = menuIds.map((id: any) => Types.ObjectId(id))
+    const menus = await this.menuModel
+    .aggregate([
+      {
+        $match: {
+          _id: { $in: menuIds },
+        },
+      },
+      {
+        $graphLookup: {
+          from: 'menus',
+          startWith: '$_id',
+          connectFromField: '_id',
+          connectToField: 'pid',
+          as: 'children',
+        },
+      },
+      {
+        $group: {
+          _id: '$children',
+          menus: {
+            $addToSet: '$children._id',
+          },
+        },
+      },
+      {
+        $unwind: {
+          path: '$menus',
+        },
+      },
+    ]);
+    const delIds = [...menuIds, ...menus[0].menus]
+    return Promise.all(
+      [
+        this.roleMenuModel.deleteMany({
+          menuId: { $in: delIds }
+        }),
+        this.menuModel.deleteMany({
+          _id: { $in: delIds }
+        })
+      ])
+    // return menus
   }
 
   createMenu(creatorId: Types.ObjectId, data: Menu): Promise<Menu> {
-    return this.menuModel.create({ ...data, creatorId: creatorId });
+    return this.menuModel.create({ ...data, creatorId: creatorId }).then((menu: Menu) => {
+      if (menu._id) {
+        this.roleMenuModel.create({
+          roleId: SUPER_ROLE_ID,
+          menuId: menu._id
+        })
+      }
+      return menu
+    });
   }
 
-  async getList(): Promise<Menu[]> {
-    return this.menuModel.find().exec();
+  async getList(menuIds = []): Promise<Menu[]> {
+    return this.menuModel.find({ _id: { $in: menuIds } }).exec();
   }
   
   async getMergeMenu(
@@ -44,8 +89,8 @@ export class MenuService {
       menus = someMenus;
     } else {
       menus = await this.menuModel
-        .find({})
-        .sort({ sort: -1 })
+        .find()
+        .sort({ sort: 1 })
         .exec();
     }
 
@@ -66,11 +111,11 @@ export class MenuService {
 
       return { ...(menu.toObject ? menu.toObject() : menu), children: result };
     }
-    let menuIndex = 0;
+    let menuIndex: any = 0;
     while (menuIndex < menus.length) {
       const menu = menus[menuIndex];
-      if ((!_id && !menu.pid) || _id === undefined || menu.id === Number(_id)) {
-        menus.splice(menuIndex as any, 1);
+      if ((!_id && !menu.pid) || (_id === undefined && !menu.pid) || menu.id === Number(_id)) {
+        menus.splice(menuIndex, 1);
         const mergeMenu = await findAllChild(menu);
         result.push(mergeMenu);
         if (_id) {

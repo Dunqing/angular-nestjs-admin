@@ -4919,6 +4919,11 @@ mongodb@3.5.7:
   optionalDependencies:
     saslprep "^1.0.0"
 
+mongoose-aggregate-paginate-v2@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.npm.taobao.org/mongoose-aggregate-paginate-v2/download/mongoose-aggregate-paginate-v2-1.0.4.tgz#a78fea8f3867bf541beba99f0f2e5b37e7f38c7f"
+  integrity sha1-p4/qjzhnv1Qb66mfDy5bN+fzjH8=
+
 mongoose-auto-increment@^5.0.1:
   version "5.0.1"
   resolved "https://registry.npm.taobao.org/mongoose-auto-increment/download/mongoose-auto-increment-5.0.1.tgz#827e051d9cc371dabe8bff1a704431d341cb79df"

@@ -6,9 +6,10 @@ import { Role } from './role.model';
 import { User } from '../user/user.model';
 import { RoleMenu } from '../model/role-menu.model';
 import { MenuModule } from '../menu/menu.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [MenuModule, TypegooseModule.forFeature([Role, RoleMenu, User])],
+  imports: [MenuModule, UserModule, TypegooseModule.forFeature([Role, RoleMenu, User])],
   controllers: [RoleController],
   providers: [RoleService],
 })

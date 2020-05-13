@@ -15,9 +15,9 @@ export class ErrorExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-    const status = exception.getStatus() || HttpStatus.INTERNAL_SERVER_ERROR;
     const errorOption: HttpErrorOption = exception.getResponse() as HttpErrorOption;
-    const errMessage = errorOption.message;
+    const status = exception.getStatus() || HttpStatus.INTERNAL_SERVER_ERROR;
+    const errMessage = errorOption.message || errorOption;
     const hasError = isString(errorOption.error) ? null : errorOption.error;
     const statusCode: HttpStatus = hasError
       ? (errorOption.error && errorOption.error.status) || status
