@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './modules/user/user.module';
 import { MenuModule } from './modules/menu/menu.module';
+import { DictionaryModule } from './modules/dictionary/dictionary.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { MenuModule } from './modules/menu/menu.module';
     CommonModule,
     UserModule,
     MenuModule,
+    DictionaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

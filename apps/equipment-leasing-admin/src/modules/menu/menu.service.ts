@@ -37,16 +37,8 @@ export class MenuService {
         },
       },
       {
-        $group: {
-          _id: '$children',
-          menus: {
-            $addToSet: '$children._id',
-          },
-        },
-      },
-      {
-        $unwind: {
-          path: '$menus',
+        $project: {
+          menus: '$children._id'
         },
       },
     ]);
@@ -88,10 +80,7 @@ export class MenuService {
     if (someMenus) {
       menus = someMenus;
     } else {
-      menus = await this.menuModel
-        .find()
-        .sort({ sort: 1 })
-        .exec();
+      menus = await this.menuModel.find().sort({ sort: 1 }).exec();
     }
 
     async function findAllChild(menu: DocumentType<Menu>) {
@@ -99,18 +88,22 @@ export class MenuService {
       let menuIndex = 0;
       while (menuIndex < menus.length) {
         const menuItem: DocumentType<Menu> = menus[menuIndex];
+        // console.log(menuItem.meta.title, menuIndex, menus.length)
         if (!menu._id.equals(menuItem.pid)) {
-          // console.log(menu._id, menuItem.pid, typeof menu._id.toString(), menu._id.equals(menuItem.pid))
           menuIndex++;
           continue;
         }
-        menus.splice(menuIndex as any, 1);
+        // console.log(menuItem.meta.title, menuIndex, menus.length, '开始')
+        menus.splice(menuIndex, 1)
+        // console.log(menu.meta.title, menuIndex, menus.length)
         const child = await findAllChild(menuItem);
+        menuIndex = 0
         result.push(child);
       }
-
       return { ...(menu.toObject ? menu.toObject() : menu), children: result };
     }
+  
+    // 便利一遍数据拿顶层的
     let menuIndex: any = 0;
     while (menuIndex < menus.length) {
       const menu = menus[menuIndex];

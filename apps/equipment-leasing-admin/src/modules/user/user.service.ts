@@ -1,7 +1,7 @@
 import { InjectModel } from 'nestjs-typegoose';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { Injectable } from '@nestjs/common';
-import { User, UserLogin } from './user.model';
+import { User, UserLogin, ChangePassword } from './user.model';
 import { MongooseModel } from '../../interfaces/mongoose.interface';
 import { compareSync } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -38,10 +38,10 @@ export class UserService {
   }
 
   async DelUsers(canDelIds: Types.ObjectId[], userIds: Types.ObjectId[]): Promise<any> {
-    const users = this.userModel.find({
+    return this.userModel.find({
       $and: [
         {
-          _id: {
+          creatorId: {
             $in: canDelIds
           }
         },
@@ -52,10 +52,12 @@ export class UserService {
         }
       ]
     }).exec().then((users) => {
-      console.log(users)
+      if (users.length === userIds.length) {
+        return this.userModel.deleteMany({ _id: { $in: userIds } });
+      } else {
+        return Promise.reject('无权删除')
+      }
     })
-    // console.log(users)
-    // return this.userModel.deleteMany({ _id: { $in: userIds } });
   }
 
   async getUserById(_id: string): Promise<any> {
@@ -127,8 +129,8 @@ export class UserService {
     ]);
   }
 
-  async getUserChildrenId(currentUserId: Types.ObjectId, includeMe = true) {
-    const userList = await this.userModel.aggregate([
+  getUserChildrenId(currentUserId: Types.ObjectId, includeMe = true) {
+    return this.userModel.aggregate([
       {
         $match: {
           _id: { $eq: currentUserId },
@@ -148,11 +150,12 @@ export class UserService {
           userIds: '$users._id'
         }
       }
-    ]).exec();
-    return includeMe ? [ ...userList[0].userIds, userList[0]._id ]: userList[0]?.userIds;
+    ]).then((userList) => {
+      return includeMe ? [ ...userList[0].userIds, userList[0]._id ]: userList[0]?.userIds;
+    });
   }
 
-  async adminLogin(userData: UserLogin): Promise<any> {
+  async adminLogin(ip: string, userData: UserLogin): Promise<any> {
     const user = await this.userModel
       .findOne({
         username: userData.username,
@@ -164,14 +167,22 @@ export class UserService {
     if (!compareSync(userData.password, user.password)) {
       return Promise.reject('密码错误');
     }
+    user.lastLoginIp = ip
+    user.save()
     return Promise.resolve(this.createToken((user as any)._id));
+  }
+
+  updateUser(id: Types.ObjectId, data: User): Promise<User> {
+    return this.userModel.findByIdAndUpdate(id, data, { new: true }).then((user) => {
+      return user || Promise.reject('无权修改')
+    });
   }
 
   async currentUserMenu(user: any): Promise<any> {
     const roles = user.roles.map(item => {
       return item._id;
     });
-    const menusObject = await this.roleMenu.aggregate([
+    return this.roleMenu.aggregate([
       {
         $match: {
           roleId: {
@@ -181,34 +192,59 @@ export class UserService {
       },
       {
         $group: {
-          _id: '$menuId',
-          menuId: {
-            $first: '$menuId',
+          _id: null,
+          menus: {
+            $addToSet: '$menuId',
           },
         },
       },
       {
         $lookup: {
           from: 'menus', //关联查询表2
-          localField: 'menuId', //关联表1的商品编号ID
-          foreignField: '_id', //匹配表2中的ID与关联表1商品编号ID对应
+          let: { menus: "$menus" },
+          pipeline: [
+            {
+              $match: { 
+                $expr: {
+                  $in: ["$_id", "$$menus" ]
+                }
+              },
+            },
+            {
+              $sort: {
+                sort: 1
+              }
+            }
+          ],
           as: 'menus', //满足 localField与foreignField的信息加入orderlists集合
         },
-      },
-      {
-        $sort: {
-          sort: 1,
-        },
-      },
-    ]);
-    // console.log(!menusObject[0].menus.length)
-    if (!menusObject[0].menus.length) {
-      return [];
-    }
-    const menus = menusObject.map(item => {
-      return item.menus[0];
+      }
+    ]).then((menus) => {
+      return this.menuService.getMergeMenu(null, menus[0].menus);
     });
-    return this.menuService.getMergeMenu(null, menus);
+    // console.log(menus[0].menus)
+  }
+  
+  changePassword(id: Types.ObjectId, data: ChangePassword) {
+    if (data.password == data.newPassword1) {
+      return Promise.reject('新密码不能和原密码一样')
+    } else if (data.newPassword1 != data.newPassword2) {
+      return Promise.reject('两次新密码不一样')
+    }
+    return this.userModel.findById(id).select('+password')
+    .then((user) => {
+      if (user) {
+        if (compareSync(data.password, user.password)) {
+          user.password = data.newPassword1
+          user.save()
+          // TODO: 需要执行退登
+          return Promise.resolve()
+        } else {
+          return Promise.reject('密码不正确！')
+        }
+      }
+      return Promise.reject('禁止修改，查不到此用户')
+    })
   }
 
   createToken(_id: string): TokenResult {

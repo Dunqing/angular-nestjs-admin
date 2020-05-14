@@ -121,3 +121,26 @@ export class DelUsers {
   @ArrayNotEmpty({ message: '用户id不能为空 '})
   userIds: Types.ObjectId[];
 }
+
+export class ChangePassword {
+  @IsNotEmpty({ message: '原始密码必须填写' })
+  @MinLength(6, { message: '密码最少六位数' })
+  @ApiProperty({
+    example: '123456'
+  })
+  password: string
+  
+  @IsNotEmpty({ message: '新密码1必须填写' })
+  @MinLength(6, { message: '新密码最少六位数' })
+  @ApiProperty({
+    example: '123456'
+  })
+  newPassword1: string
+  
+  @IsNotEmpty({ message: '新密码2必须填写' })
+  @MinLength(6, { message: '新密码最少六位数' })
+  @ApiProperty({
+    example: '123456'
+  })
+  newPassword2: string
+}

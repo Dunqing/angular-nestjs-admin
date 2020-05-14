@@ -25,14 +25,29 @@ export class RoleService {
     });
   }
   
-  delRole(roleIds: Types.ObjectId[]): any {
-    return this.roleModel.deleteMany({
-      _id: { $in: roleIds }
+  delRole(useDelIds: Types.ObjectId[], roleIds: Types.ObjectId[]): any {
+    return this.roleModel.find({
+      $and: [ { _id: { $in: roleIds } }, { creatorId: { $in: useDelIds }} ]
+    }).then((roles) => {
+      if (roles.length === roleIds.length) {
+        return Promise.all([
+          this.roleModel.deleteMany({
+            $and: [ { _id: { $in: roleIds } } ]
+          }),
+          this.roleModel.deleteMany({
+            roleId: { $in: roleIds }
+          })
+        ])
+      } else {
+        return Promise.reject('无权删除')
+      }
     })
   }
 
-  updateRole(id: Types.ObjectId, data: Role): Promise<Role> {
-    return this.roleModel.findOneAndUpdate({ id }, data, { new: true }).exec();
+  updateRole(useEditId, _id: Types.ObjectId, data: Role): Promise<Role> {
+    return this.roleModel.findOneAndUpdate({ _id, creatorId: { $in: useEditId } }, data, { new: true }).then((role) => {
+      return role || Promise.reject('无权修改')
+    });
   }
 
   async roleList(childrenIds): Promise<any> {
@@ -41,7 +56,6 @@ export class RoleService {
     }
     return this.roleModel.find()
   }
-
 
   async paginateList(querys: any, options: any): Promise<any> {
     const roles = this.roleModel.aggregate([
@@ -70,25 +84,44 @@ export class RoleService {
     return paginate
   }
 
-  async assigningRoles(data: AssigningRoles): Promise<any> {
+  async assigningRoles(id: Types.ObjectId, data: AssigningRoles): Promise<any> {
     // const rolesId: any[] = data.roleIds.map(id => new Types.ObjectId(id));
-    return this.userModel.findByIdAndUpdate(
-      data.userId,
-      { roles: data.roleIds },
-      { new: true },
-    );
+    console.log(id, data)
+    return this.roleModel.find({
+      _id: { $in: data.roleIds },
+      creatorId: id
+    }).then((roles) => {
+      console.log(roles)
+      if (roles && roles.length === data.roleIds.length) {
+        return this.userModel.findByIdAndUpdate(
+          data.userId,
+          { roles: data.roleIds },
+          { new: true },
+        );
+      } else {
+        return Promise.reject('只能分配自己创建的角色')
+      }
+    })
   }
 
-  async assigningMenus(data: AssigningMenus): Promise<any> {
-    const insertList = data.menuIds.map((_id) => {
-      return {
-        roleId: data.roleId,
-        menuId: _id,
-      };
-    });
-    await this.roleMenuModel.deleteMany({
-      roleId: Types.ObjectId(data.roleId),
-    });
-    return this.roleMenuModel.insertMany(insertList);
+  async assigningMenus(useAssignIds: Types.ObjectId[], data: AssigningMenus): Promise<any> {
+    this.roleModel.find({
+      _id: data.roleId,
+      creatorId: { $in: useAssignIds }
+    }).then((role) => {
+      if (role) {
+        return Promise.all([
+          this.roleMenuModel.deleteMany({
+            roleId: new Types.ObjectId(data.roleId),
+          }),
+          this.roleMenuModel.insertMany(data.menuIds.map((_id) => {
+            return {
+              roleId: data.roleId,
+              menuId: _id,
+            };
+          }))
+        ])
+      }
+    })
   }
 }

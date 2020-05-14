@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from 'libs/pipes/validation.pipe';
 import { ErrorExceptionsFilter } from './filters/errors.filter';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,6 +16,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(
     new ErrorsInterceptor(new Reflector()),
     new ResponseInterceptor(new Reflector()),
+    new LoggingInterceptor(),
   );
 
   const options = new DocumentBuilder()
@@ -31,7 +33,7 @@ async function bootstrap() {
   const ip = 'http://127.0.0.1';
   const port = process.env.ELA_PORT || 3301;
   console.log(`${ip}:${port}/api-doc`, '文档地址');
-  
+
   await app.listen(port);
 }
 bootstrap();
