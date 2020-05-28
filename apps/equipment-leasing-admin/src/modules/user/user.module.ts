@@ -1,5 +1,4 @@
 import { User } from './user.model';
-import { TypegooseModule } from 'nestjs-typegoose';
 import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
@@ -9,9 +8,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './passport/jwt.strategy';
 import { MenuModule } from '../menu/menu.module';
 import { RoleMenu } from '../model/role-menu.model';
+import { TypegooseModelModule } from '../../transformers/model.transoformer';
+import { UserRedisService } from './user-redis.service';
 @Module({
   imports: [
-    TypegooseModule.forFeature([User, RoleMenu]),
+    TypegooseModelModule.forFeature([User, RoleMenu]),
     PassportModule,
     MenuModule,
     JwtModule.registerAsync({
@@ -19,12 +20,12 @@ import { RoleMenu } from '../model/role-menu.model';
         secret: process.env.JWT_SECRET,
         signOptions: {
           expiresIn: Number(process.env.EXPIRES_TIME),
-        }
-      })
+        },
+      }),
     }),
   ],
   controllers: [UserController],
-  providers: [UserService, LocalStrategy, JwtStrategy],
-  exports: [UserService]
+  providers: [UserService, UserRedisService, LocalStrategy, JwtStrategy],
+  exports: [UserService, UserRedisService],
 })
 export class UserModule {}

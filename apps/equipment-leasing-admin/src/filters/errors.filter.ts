@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  ExecutionContext,
 } from '@nestjs/common';
 import { HttpErrorOption, IHttpStatus } from '../interfaces/http.interface';
 import { Request, Response } from 'express';
@@ -19,6 +20,7 @@ export class ErrorExceptionsFilter implements ExceptionFilter {
     const status = exception.getStatus() || HttpStatus.INTERNAL_SERVER_ERROR;
     const errMessage = errorOption.message || errorOption;
     const hasError = isString(errorOption.error) ? null : errorOption.error;
+
     const statusCode: HttpStatus = hasError
       ? (errorOption.error && errorOption.error.status) || status
       : status;

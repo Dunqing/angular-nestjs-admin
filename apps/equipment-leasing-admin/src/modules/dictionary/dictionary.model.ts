@@ -1,5 +1,6 @@
-import { modelOptions, prop, Ref } from '@typegoose/typegoose';
-import { MaxLength, IsNotEmpty } from 'class-validator';
+import { modelOptions, prop, Ref, plugin } from '@typegoose/typegoose';
+import { MaxLength, IsNotEmpty, ArrayNotEmpty, ArrayUnique, IsArray } from 'class-validator';
+import { mongoosePaginate } from '../../transformers/mongoose.transformers';
 
 @modelOptions({
   schemaOptions: {
@@ -23,11 +24,12 @@ export class Dictionary {
   @prop({ required: true })
   value: string;
 
-  @MaxLength(30, { message: '描述文字不可以超过三十个字符' })
+  // @MaxLength(30, { message: '描述文字不可以超过三十个字符' })
   @prop({ default: '' })
   description: string;
 }
 
+@plugin(mongoosePaginate)
 @modelOptions({
   schemaOptions: {
     timestamps: {
@@ -42,7 +44,21 @@ export class DictionaryType {
   @prop({ required: true })
   name: string;
 
-  @MaxLength(30, { message: '描述文字不可以超过三十个字符' })
+  // @MaxLength(30, { message: '描述文字不可以超过三十个字符' })
   @prop({ default: '' })
   description: string;
+}
+
+export class DelDictionaryTypes {
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayUnique()
+  dictionaryTypeIds: []
+}
+
+export class DelDictionary {
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayUnique()
+  dictionaryIds: []
 }

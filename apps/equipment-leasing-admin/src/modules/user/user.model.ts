@@ -1,4 +1,4 @@
-import { mongoosePaginate } from './../../transformers/model.transformers';
+import { mongoosePaginate } from '../../transformers/mongoose.transformers';
 import { pre, prop, Ref, plugin, arrayProp } from '@typegoose/typegoose';
 import {
   IsDefined,
@@ -11,7 +11,8 @@ import {
   IsNotEmpty,
   ArrayNotEmpty,
   IsArray,
-  ArrayUnique
+  ArrayUnique,
+  IsBoolean,
 } from 'class-validator';
 import { AutoIncrementID } from '@typegoose/auto-increment';
 import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
@@ -34,8 +35,8 @@ enum Status {
 export class User extends TimeStamps {
   // @prop({ select: false })
   // _id: string
-  _id: Types.ObjectId
-  
+  _id: Types.ObjectId;
+
   @prop()
   id: number;
 
@@ -93,16 +94,15 @@ export class User extends TimeStamps {
   roles?: Types.ObjectId[];
 
   @IsOptional()
-  @IsEnum(Status)
+  @IsBoolean({ message: '必须为布尔值' })
   @prop({
-    default: Status.enable,
-    enum: Status,
+    default: true,
   })
-  status?: number;
+  status?: boolean;
 }
 
 export class UserLogin {
-  @ApiProperty({ example: 'admin2' })
+  @ApiProperty({ example: 'super_admin' })
   @IsNotEmpty({ message: '账号名不能为空' })
   @IsString({ message: '请正确输入账号' })
   @MinLength(5, { message: '账号最少5位' })
@@ -118,29 +118,36 @@ export class UserLogin {
 export class DelUsers {
   @IsArray({ message: '必须是数组' })
   @ArrayUnique({ message: '用户id不能重复' })
-  @ArrayNotEmpty({ message: '用户id不能为空 '})
+  @ArrayNotEmpty({ message: '用户id不能为空 ' })
   userIds: Types.ObjectId[];
+}
+
+export class OutTokens {
+  @IsArray({ message: '必须是数组' })
+  @ArrayUnique({ message: '用户token不能重复' })
+  @ArrayNotEmpty({ message: '用户token不能为空 ' })
+  tokens: string[];
 }
 
 export class ChangePassword {
   @IsNotEmpty({ message: '原始密码必须填写' })
   @MinLength(6, { message: '密码最少六位数' })
   @ApiProperty({
-    example: '123456'
+    example: '123456',
   })
-  password: string
-  
+  password: string;
+
   @IsNotEmpty({ message: '新密码1必须填写' })
   @MinLength(6, { message: '新密码最少六位数' })
   @ApiProperty({
-    example: '123456'
+    example: '123456',
   })
-  newPassword1: string
-  
+  newPassword1: string;
+
   @IsNotEmpty({ message: '新密码2必须填写' })
   @MinLength(6, { message: '新密码最少六位数' })
   @ApiProperty({
-    example: '123456'
+    example: '123456',
   })
-  newPassword2: string
+  newPassword2: string;
 }

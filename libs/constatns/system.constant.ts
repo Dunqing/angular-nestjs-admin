@@ -1,0 +1,1 @@
+export const MONGO_DB_TOKEN = 'CONNECTION_MONGO';

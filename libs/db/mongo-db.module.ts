@@ -1,17 +1,10 @@
-import { Module } from '@nestjs/common';
-import { TypegooseModule } from 'nestjs-typegoose';
+import { Module, Global } from '@nestjs/common';
+import { mongoProvider } from './mongo-db.provider';
 
+@Global()
 @Module({
-  imports: [
-    TypegooseModule.forRootAsync({
-      useFactory: () => ({
-        uri: process.env.MONGO_DB_URL,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useCreateIndex: true,
-        useFindAndModify: false,
-      }),
-    }),
-  ],
+  imports: [],
+  providers: [mongoProvider],
+  exports: [mongoProvider],
 })
 export class MongoDbModule {}

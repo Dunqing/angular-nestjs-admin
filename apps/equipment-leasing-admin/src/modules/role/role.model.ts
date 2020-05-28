@@ -1,5 +1,8 @@
 import { isString } from 'lodash';
-import { mongoosePaginate, mongooseAggregatePaginateV2 } from '../../transformers/model.transformers';
+import {
+  mongoosePaginate,
+  mongooseAggregatePaginateV2,
+} from '../../transformers/mongoose.transformers';
 import { pre, prop, Ref, plugin } from '@typegoose/typegoose';
 import {
   IsDefined,
@@ -27,7 +30,6 @@ import { Types } from 'mongoose';
 })
 @plugin(mongooseAggregatePaginateV2)
 export class Role extends TimeStamps {
-
   _id: any;
 
   @prop()
@@ -57,6 +59,6 @@ export class AssigningRoles {
 export class DelRoles {
   @IsArray({ message: '必须是数组' })
   @ArrayUnique({ message: '角色id不能重复' })
-  @ArrayNotEmpty({ message: '要删除的菜单id不能为空'})
-  roleIds: Types.ObjectId[]
+  @ArrayNotEmpty({ message: '要删除的菜单id不能为空' })
+  roleIds: Types.ObjectId[];
 }

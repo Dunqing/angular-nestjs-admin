@@ -1,5 +1,5 @@
 import { isString } from 'lodash';
-import { mongoosePaginate } from '../../transformers/model.transformers';
+import { mongoosePaginate } from '../../transformers/mongoose.transformers';
 import { pre, prop, Ref, plugin } from '@typegoose/typegoose';
 import {
   IsDefined,
@@ -32,7 +32,6 @@ export class RoleMenu extends TimeStamps {
 
   @prop({ ref: Menu, required: true })
   menuId: Types.ObjectId;
-  
 }
 
 export class AssigningMenus {

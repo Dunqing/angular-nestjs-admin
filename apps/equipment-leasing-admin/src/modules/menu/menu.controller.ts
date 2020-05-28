@@ -1,19 +1,31 @@
-import { Controller, Post, Body, Get, Query, Param, UseGuards, Put, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Query,
+  Param,
+  UseGuards,
+  Put,
+  Delete,
+} from '@nestjs/common';
 import { Menu, DelMenus } from './menu.model';
 import { MenuService } from './menu.service';
 import { Paginate, UserInfo } from '../../decorators/query.decorator';
 import { HttpProcessor } from '../../decorators/http.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../user/passport/jwt.guard';
-import { PermissionIdentifier, PermissionNamePrefix } from '../../decorators/permission.decorator';
+import {
+  PermissionIdentifier,
+  PermissionNamePrefix,
+} from '../../decorators/permission.decorator';
 import { Identifier, NamePrefix } from '../../interfaces/permission.interface';
 import { QueryParams } from '../../decorators/query-params.decorator';
 
-
 @UseGuards(JwtAuthGuard)
 @PermissionNamePrefix(NamePrefix.Menu)
-@ApiTags('menus')
-@Controller('menus')
+@ApiTags('menu')
+@Controller('menu')
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 
@@ -39,14 +51,14 @@ export class MenuController {
   @PermissionIdentifier(Identifier.DEL)
   @Delete()
   deleteMenu(@Body() body: DelMenus): Promise<Menu> {
-    return this.menuService.deleteMenu(body.menuIds)
+    return this.menuService.deleteMenu(body.menuIds);
   }
-  
+
   @PermissionIdentifier(Identifier.EDIT)
   @HttpProcessor.handle('修改菜单')
   @Put(':id')
   updateMenu(@QueryParams() { params }, @Body() body: Menu): Promise<Menu> {
-    return this.menuService.updateMenu(params.id, body)
+    return this.menuService.updateMenu(params.id, body);
   }
 
   @HttpProcessor.handle('获取菜单列表')
