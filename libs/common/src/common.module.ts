@@ -9,9 +9,8 @@ import { RedisModule } from '@svtslv/nestjs-ioredis';
     MongoDbModule,
     RedisModule.forRoot({
       config: {
-        // host: 'localhost',
-        // port: 6379,
-        url: 'redis://localhost:6379',
+        host: process.env.REDIS_HOST,
+        port: Number(process.env.REDIS_PORT) || 6379,
       },
     }),
   ],

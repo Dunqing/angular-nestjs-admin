@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  redis:
+    image: redis
+    volumes:
+      - redis_db_data:/data/ela/redis
+    restart: always
+    
+  mongo:
+      image: mongo
+      restart: always
+      volumes: 
+        - mongo_db_data:/data/ela/mongo
+  
+  ela: 
+    depends_on: 
+      - redis
+      - mongo
+    image: node
+    command: sh -c "yarn install && yarn run start:debug ela"
+    restart: always
+    working_dir: /app
+    links:
+      - redis
+      - mongo
+    volumes: 
+      - ./:/app
+    ports: 
+      - 80:3301
+    environment: 
+      MONGO: mongo
+      REDIS: redis
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8888:8081
+
+
+
+volumes: 
+  redis_db_data: 
+  mongo_db_data:
