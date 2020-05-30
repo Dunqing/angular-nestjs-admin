@@ -21,9 +21,11 @@ services:
     restart: always
     volumes: 
       - /data/equipment-leasing-ela:/data/equipment-leasing-ela
+    environment: 
+      - ELA_PORT:80
     ports: 
-      - 80:3301
-      - 443:3301
+      - 80:80
+      # - 443:3301
       - 43554:43554
     environment: 
       MONGO_HOST: mongo
