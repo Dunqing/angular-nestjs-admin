@@ -9,6 +9,7 @@ import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
+  console.log(process.env.NODE_ENV)
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.setGlobalPrefix('api')
