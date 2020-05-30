@@ -19,25 +19,30 @@ services:
       - mongo
     image: ela
     restart: always
-    volumes: 
-      - /data/equipment-leasing-ela:/data/equipment-leasing-ela
-    environment: 
-      - ELA_PORT:80
-    ports: 
-      - 80:80
-      # - 443:3301
-      - 43554:43554
+    ports:
+      - 3301:3301
     environment: 
       MONGO_HOST: mongo
       REDIS_HOST: redis
+    volumes: 
+      - ela_app:/app
+
   mongo-express:
     image: mongo-express
     restart: always
     ports:
-      - 8888:8081
+      - 8081:8081
 
-
+  nginx:
+    depends_on:
+      - ela
+    image: nginx
+    ports:
+      - 80:80
+    volumes: 
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
 
 volumes: 
+  ela_app:
   redis_db_data: 
   mongo_db_data:
