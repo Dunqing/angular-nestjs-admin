@@ -17,21 +17,17 @@ services:
     depends_on: 
       - redis
       - mongo
-    image: node
-    command: sh -c "yarn install && yarn run start:debug ela"
+    image: ela
     restart: always
-    working_dir: /app
-    links:
-      - redis
-      - mongo
     volumes: 
-      - ./:/app
+      - /data/equipment-leasing-ela:/data/equipment-leasing-ela
     ports: 
-      - 80:3301
+      - 80:80
+      - 443:443
+      - 43554:43554
     environment: 
-      MONGO: mongo
-      REDIS: redis
-
+      MONGO_HOST: mongo
+      REDIS_HOST: redis
   mongo-express:
     image: mongo-express
     restart: always
