@@ -22,8 +22,8 @@ services:
     volumes: 
       - /data/equipment-leasing-ela:/data/equipment-leasing-ela
     ports: 
-      - 80:80
-      - 443:443
+      - 80:3301
+      - 443:3301
       - 43554:43554
     environment: 
       MONGO_HOST: mongo
