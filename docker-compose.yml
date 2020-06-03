@@ -12,6 +12,11 @@ services:
       restart: always
       volumes: 
         - mongo_db_data:/data/ela/mongo
+
+  admin:
+      image: admin
+      volumes:
+        - ela_app_admin:/app/dist
   
   ela: 
     depends_on: 
@@ -19,23 +24,32 @@ services:
       - mongo
     image: ela
     restart: always
-    volumes: 
-      - /data/equipment-leasing-ela:/data/equipment-leasing-ela
-    ports: 
-      - 80:80
-      - 443:443
-      - 43554:43554
+    ports:
+      - 3301:3301
     environment: 
       MONGO_HOST: mongo
       REDIS_HOST: redis
+    volumes: 
+      - ela_app:/app
+
   mongo-express:
     image: mongo-express
     restart: always
     ports:
-      - 8888:8081
+      - 8081:8081
 
-
+  nginx:
+    depends_on:
+      - ela
+    image: nginx
+    ports:
+      - 80:80
+    volumes: 
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ela_app_admin:/usr/share/nginx/html
 
 volumes: 
+  ela_app:
+  ela_app_admin:
   redis_db_data: 
   mongo_db_data:
