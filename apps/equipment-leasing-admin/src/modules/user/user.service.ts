@@ -135,7 +135,6 @@ export class UserService {
   }
 
   getUserChildrenId(currentUserId: Types.ObjectId, includeMe = true) {
-    console.log(currentUserId, typeof currentUserId);
     return this.userModel
       .aggregate([
         {

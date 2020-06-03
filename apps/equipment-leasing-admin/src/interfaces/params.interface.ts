@@ -1,4 +1,9 @@
 export enum ESortType {
-  Asc = 1,
-  Desc = -1,
+  Asc = 'ascending',
+  Desc = 'descending',
+}
+
+export const ESortTypeValue = {
+  ascending: 1,
+  descending: -1
 }

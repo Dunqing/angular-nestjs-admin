@@ -95,14 +95,14 @@ export class RoleService {
 
   async assigningRoles(id: Types.ObjectId, data: AssigningRoles): Promise<any> {
     // const rolesId: any[] = data.roleIds.map(id => new Types.ObjectId(id));
-    console.log(id, data);
+    // console.log(id, data);
     return this.roleModel
       .find({
         _id: { $in: data.roleIds },
         creatorId: id,
       })
       .then(roles => {
-        console.log(roles);
+        // console.log(roles);
         if (roles && roles.length === data.roleIds.length) {
           return this.userModel.findByIdAndUpdate(
             data.userId,

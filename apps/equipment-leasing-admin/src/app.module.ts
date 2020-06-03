@@ -1,3 +1,4 @@
+import { SystemModule } from './modules/system/system.module';
 import { ArticleModule } from './modules/article/article.module';
 import { ConfigurationModule } from './modules/configuration/configuration.module';
 import { RoleModule } from './modules/role/role.module';
@@ -14,7 +15,8 @@ import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
-        ArticleModule, 
+    SystemModule, 
+    ArticleModule, 
     ConfigurationModule,
     RoleModule,
     AdminConfigModule,

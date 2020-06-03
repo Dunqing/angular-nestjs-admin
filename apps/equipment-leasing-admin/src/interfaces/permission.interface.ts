@@ -15,5 +15,6 @@ export enum NamePrefix {
   Role = 'role',
   Logging = 'logging',
   Dictionary = 'dictionary',
-  DictionaryType = 'dictionary_type'
+  DictionaryType = 'dictionary_type',
+  Article = 'article'
 }

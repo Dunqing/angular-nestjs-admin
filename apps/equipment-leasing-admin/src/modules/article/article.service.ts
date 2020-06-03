@@ -8,11 +8,16 @@ import { Types } from 'mongoose';
 export class ArticleService {
   constructor(
     @InjectModel(Article) private articleModel: MongooseModel<Article>
-    ) {}
+  ) {}
     
+  paginateArticle(querys: any, options: any): Promise<any> {
+    return this.articleModel.paginate(querys, options)
+  }
+
   updateArticle(id: any, body: Article) {
     return this.articleModel.findByIdAndUpdate(id, body)
   }
+
   deleteArticles(articleIds: Types.ObjectId[]) {
     return this.articleModel.deleteMany({
       _id: { $in: articleIds }

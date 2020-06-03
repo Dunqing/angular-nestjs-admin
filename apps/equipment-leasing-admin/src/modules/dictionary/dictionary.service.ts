@@ -34,7 +34,6 @@ export class DictionaryService {
   }
 
   createDictType(data: DictionaryType): Promise<any> {
-    console.log(data);
     return this.dictionaryTypeModel
       .findOneAndUpdate({ name: { $eq: data.name } }, data, {
         new: true,

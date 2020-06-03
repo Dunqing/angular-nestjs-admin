@@ -31,6 +31,7 @@ export class MenuController {
 
   @PermissionIdentifier(Identifier.ADD)
   @Post()
+  @HttpProcessor.handle('创建菜单')
   create(@UserInfo() user: any, @Body() data: Menu): Promise<Menu> {
     return this.menuService.createMenu(user._id, data);
   }

@@ -7,13 +7,15 @@ import { Request, request } from 'express';
 import { Types } from 'mongoose';
 import { User } from '../modules/user/user.model';
 import * as lodash from 'lodash';
-import { ESortType } from '../interfaces/params.interface';
+import { ESortTypeValue } from '../interfaces/params.interface';
 
 export enum EQueryParamsField {
   Page = 'page',
   Limit = 'limit',
   Sort = 'sort',
   ParamsId = 'paramsId',
+  Method = 'method',
+  Search = 'search'
 }
 
 export interface IQueryParamsConfig {
@@ -75,11 +77,17 @@ export const QueryParams = createParamDecorator(
     const request = ctx.switchToHttp().getRequest<Request>();
     const isAuthenticated = request.isAuthenticated();
 
+    const handleFields = [
+      'type'
+    ]
+
     const transformConfig: IQueryParamsConfig = {
       [EQueryParamsField.Page]: 1,
       [EQueryParamsField.Limit]: 10,
       [EQueryParamsField.ParamsId]: 'id',
       [EQueryParamsField.Sort]: true,
+      [EQueryParamsField.Method]: 'GET',
+      [EQueryParamsField.Search]: true
     };
 
     if (customConfig) {
@@ -88,7 +96,8 @@ export const QueryParams = createParamDecorator(
           customConfig[field] = true;
         }
         if (lodash.isObject(field)) {
-          Object.assign(customConfig, field);
+          Object
+          .assign(customConfig, field);
         }
       });
     }
@@ -106,13 +115,19 @@ export const QueryParams = createParamDecorator(
     );
 
     const paramsId = params[transformConfig.paramsId as string];
-
-    const [page, limit, sort]: any[] = [
+    const [page, limit]: any[] = [
       request.query.page,
       request.query.limit,
-      request.query.sort,
     ].map(item => (item != null ? Number(item) : item));
-
+    
+    const sort: any = request.query.sort
+    const search: any = request.query.search
+    let useRegex: any = request.query.useRegex === undefined ? true : request.query.useRegex
+    try {
+      useRegex = eval(useRegex)
+    } catch (error) {
+      console.log('useRegex 错误', error)
+    }
     // 参数提取验证规则
     // 1. field 用于校验这个字段是否被允许用做参数
     // 2. isAllowed 请求参数是否在允许规则之内 -> 400
@@ -132,16 +147,54 @@ export const QueryParams = createParamDecorator(
         },
       },
       {
+        name: '请求方式/method',
+        field: EQueryParamsField.Method,
+        isAllowed: true,
+        setValue() {
+          const query: string = request.query.method as string
+          if (query) {
+            querys[EQueryParamsField.Method] = {
+              $in: query.split(',') as any
+            }
+          }
+        }
+      },
+      {
+        name: '搜索/search',
+        field: EQueryParamsField.Search,
+        // isAllowed: search ? search.indexOf('|KV|') !== -1 : true, 
+        isAllowed: true,
+        setValue() {
+          if (search) {
+            const searchValue = search.split(',')
+            if (!searchValue.length) {
+              return
+            }
+            querys['$and'] = searchValue.map((key) => {
+              const qValue = request.query[key]
+              if (qValue === undefined) return
+
+              return {
+                [key]: useRegex ? { $regex: request.query[key]} : request.query[key]
+              }
+            })
+          }
+        },
+      },
+      {
         name: '排序/sort',
         field: EQueryParamsField.Sort,
-        isAllowed:
-          lodash.isUndefined(sort) ||
-          [ESortType.Desc, ESortType.Asc].includes(sort),
+        isAllowed: sort ? sort.indexOf('_') !== -1 : true, 
         setValue() {
           if (sort) {
-            options.sort = {
-              createdAt: sort,
-            };
+            const sortVariable = sort.split('_')
+            try {
+              options[EQueryParamsField.Sort] = {
+                [sortVariable[0]]: ESortTypeValue[sortVariable[1]] !== undefined ? ESortTypeValue[sortVariable[1]] : Number(sortVariable[1]) 
+              }
+            } catch (error) {
+              this.isAllowed = false
+            }
           }
         },
       },
@@ -172,7 +225,7 @@ export const QueryParams = createParamDecorator(
       if (!isEnableField(transformConfig[validate.field])) {
         return false;
       }
-
+      
       if (!validate.isAllowed) {
         throw new BadRequestException(`参数不合法：${validate.name}`);
       }
@@ -184,10 +237,11 @@ export const QueryParams = createParamDecorator(
     const isProcessedFields = validates.map(validate => validate.field);
     // 允许处理的字段
     const allAllowFields = Object.keys(transformConfig);
+    const waitHandle = handleFields.concat(allAllowFields)
     // 需要其他方法处理的字段
     const todoFields: string[] = lodash.difference(
-      isProcessedFields,
-      allAllowFields,
+      waitHandle,
+      isProcessedFields
     );
     // 将所有未处理字段添加到querys
     if (todoFields.length) {
@@ -211,6 +265,9 @@ export const QueryParams = createParamDecorator(
 
     // 用户标识
     const ua = request.headers['user-agent'];
+
+    console.log(querys, 'querys')
+    console.log(options, 'options')
 
     const result = {
       querys,

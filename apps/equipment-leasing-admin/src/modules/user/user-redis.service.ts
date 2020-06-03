@@ -25,7 +25,6 @@ export class UserRedisService {
 
   async setTokenUser(token: string, userId: string) {
     const user = (await this.userService.getUserById(userId))[0];
-    console.log(userId, SUPER_ADMIN_ID, typeof userId)
     user['superAdmin'] = userId.toString() === SUPER_ADMIN_ID;
     user['token'] = token;
     const seconds = parseInt(process.env.EXPIRES_TIME);
