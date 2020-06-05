@@ -118,6 +118,7 @@ export class MenuService {
       ) {
         menus.splice(menuIndex, 1);
         const mergeMenu = await findAllChild(menu);
+        menuIndex = 0
         result.push(mergeMenu);
         if (_id) {
           break;

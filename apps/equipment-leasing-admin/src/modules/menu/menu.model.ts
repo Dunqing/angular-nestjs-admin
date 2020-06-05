@@ -25,6 +25,7 @@ enum MetaStatus {
 export enum MenuType {
   Menu = 0,
   Button = 1,
+  ExternalLink = 2
 }
 
 @modelOptions({})

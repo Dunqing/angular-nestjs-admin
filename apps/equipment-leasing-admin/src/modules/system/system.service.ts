@@ -10,8 +10,11 @@ export class SystemService {
   backupMongodb() {
     const host = '127.0.0.1'
     const dbName = 'equipment-leasing'
-    const dictionaryPath = path.join(__dirname, '/mongo_backup')
-    const cmd = `mongodump -h ${host} -d ${dbName} -o ${dictionaryPath}`
+    const now = new Date()
+    const folderPath = path.join(__dirname, `/mongo_backup/${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日-${now.getHours()}时${now.getMinutes()}分`)
+    console.log(__dirname)
+    // return
+    const cmd = `mongodump -h ${host} -d ${dbName} -o ${folderPath}`
     console.log(cmd)
     return exec(cmd).then((result) => {
       const stdout = result.stdout;
