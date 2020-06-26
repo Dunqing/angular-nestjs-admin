@@ -10,7 +10,7 @@ import {
   Param,
   Patch,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import {
   User,
   UserLogin,
@@ -20,7 +20,6 @@ import {
 } from './user.model';
 import { HttpProcessor, handle } from '../../decorators/http.decorator';
 import { Paginate, UserInfo } from '../../decorators/query.decorator';
-import { LocalAuthGuard } from './passport/local.guard';
 import { UnauthorizedError } from '../../errors/unauthorized.error';
 import { JwtAuthGuard } from './passport/jwt.guard';
 import { QueryParams } from '../../decorators/query-params.decorator';

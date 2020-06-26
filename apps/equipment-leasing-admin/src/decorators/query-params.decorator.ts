@@ -172,10 +172,9 @@ export const QueryParams = createParamDecorator(
             }
             querys['$and'] = searchValue.map((key) => {
               const qValue = request.query[key]
-              if (qValue === undefined) return
-
+              if (qValue === undefined) return { [key]: { $regex: '' } }
               return {
-                [key]: useRegex ? { $regex: request.query[key]} : request.query[key]
+                [key]: useRegex ? { $regex: qValue || ''} : qValue || ''
               }
             })
           }
