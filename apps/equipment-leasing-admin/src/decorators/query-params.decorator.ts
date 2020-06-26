@@ -174,7 +174,7 @@ export const QueryParams = createParamDecorator(
               const qValue = request.query[key]
               if (qValue === undefined) return { [key]: { $regex: '' } }
               return {
-                [key]: useRegex ? { $regex: qValue || ''} : qValue || ''
+                [key]: useRegex ? { $regex: qValue} : qValue
               }
             })
           }
