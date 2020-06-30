@@ -1,6 +1,6 @@
 {
   "name": "equipment-leasing",
-  "script": "dist/apps/admin/main.js",
+  "script": "dist/apps/angular-admin/main.js",
   "instances": "2",
   "env": {
     "NODE_ENV": "development"

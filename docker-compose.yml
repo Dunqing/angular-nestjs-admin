@@ -17,6 +17,8 @@ services:
     depends_on: 
       - redis
       - mongo
+    build:
+      context: ./docker
     image: nest-admin
     restart: always
     ports:
