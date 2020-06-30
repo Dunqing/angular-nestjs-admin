@@ -13,13 +13,13 @@ services:
       volumes: 
         - mongo_db_data:/data/admin/mongo
   
-  nest-admin: 
+  admin: 
     depends_on: 
       - redis
       - mongo
     build:
-      context: ./docker
-    image: nest-admin
+      context: .
+    # image: nest-admin
     restart: always
     ports:
       - 4221:4221
