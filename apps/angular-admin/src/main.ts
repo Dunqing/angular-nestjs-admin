@@ -28,10 +28,10 @@ async function bootstrap() {
   })
 
   const options = new DocumentBuilder()
-    .setTitle('设备租赁')
-    .setDescription('设备租赁后台')
+    .setTitle('angular-nestjs-admin')
+    .setDescription('angular通用后台')
     .setVersion('1.0')
-    .addTag('equipment-leasing-admin')
+    .addTag('angular-nestjs-admin')
     .addBearerAuth()
     .build();
 

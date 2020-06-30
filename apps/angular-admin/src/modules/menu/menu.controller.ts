@@ -20,14 +20,15 @@ import {
   PermissionNamePrefix,
 } from '../../decorators/permission.decorator';
 import { Identifier, NamePrefix } from '../../interfaces/permission.interface';
-import { QueryParams } from '../../decorators/query-params.decorator';
+import { QueryParams, IQueryParamsResult } from '../../decorators/query-params.decorator';
+import { UserService } from '../user/user.service';
 
 @UseGuards(JwtAuthGuard)
 @PermissionNamePrefix(NamePrefix.Menu)
 @ApiTags('menu')
 @Controller('menu')
 export class MenuController {
-  constructor(private readonly menuService: MenuService) {}
+  constructor(private readonly menuService: MenuService, private userSerivce: UserService) {}
 
   @PermissionIdentifier(Identifier.ADD)
   @Post()
@@ -40,6 +41,13 @@ export class MenuController {
   @PermissionIdentifier(Identifier.READ)
   mergeMenu(): Promise<Menu[]> {
     return this.menuService.getMergeMenu();
+  }
+
+  @Get('currentUser/merge/:id')
+  @PermissionIdentifier(Identifier.READ)
+  async userMergeMenuById(@QueryParams() { params, userInfo }: IQueryParamsResult): Promise<Menu[]> {
+    const menus = await this.userSerivce.getCurrentUserMenus(userInfo)
+    return this.menuService.getMergeMenu(params.id as any, menus, false)
   }
 
   @Get('merge/:id')

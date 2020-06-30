@@ -1,29 +1,29 @@
 {
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/equipment-leasing/src",
+  "sourceRoot": "apps/angular-admin/src",
   "monorepo": true,
-  "root": "apps/equipment-leasing",
+  "root": "apps/angular-admin",
   "compilerOptions": {
     "webpack": true,
-    "tsConfigPath": "apps/equipment-leasing/tsconfig.app.json"
+    "tsConfigPath": "apps/angular-admin/tsconfig.app.json"
   },
   "projects": {
-    "ela": {
+    "nga": {
       "type": "application",
-      "root": "apps/equipment-leasing-admin",
+      "root": "apps/angular-admin/",
       "entryFile": "main",
-      "sourceRoot": "apps/equipment-leasing-admin/src",
+      "sourceRoot": "apps/angular-admin/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/equipment-leasing-admin/tsconfig.app.json"
+        "tsConfigPath": "apps/angular-admin/tsconfig.app.json"
       }
     },
-    "els": {
+    "ngs": {
       "type": "application",
-      "root": "apps/equipment-leasing-service",
+      "root": "apps/angular-service/",
       "entryFile": "main",
-      "sourceRoot": "apps/equipment-leasing-service/src",
+      "sourceRoot": "apps/angular-service/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/equipment-leasing-service/tsconfig.app.json"
+        "tsConfigPath": "apps/angular-service/tsconfig.app.json"
       }
     },
     "database": {

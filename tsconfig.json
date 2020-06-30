@@ -12,6 +12,18 @@
     "incremental": true,
     "types": ["lodash", "mongoose", "mongoose-paginate"],
     "paths": {
+      "@app/admin": [
+        "apps/angular-admin/src"
+      ],
+      "@app/admin/*": [
+        "apps/angular-admin/src/*"
+      ],
+      "@app/service": [
+        "apps/angular-service/src"
+      ],
+      "@app/service/*": [
+        "apps/angular-service/src/*"
+      ],
       "@app/database": [
         "libs/database/src"
       ],

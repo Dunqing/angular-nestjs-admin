@@ -1,5 +1,5 @@
 import { User } from './user.model';
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { LocalStrategy } from './passport/local.strategy';
@@ -14,7 +14,7 @@ import { UserRedisService } from './user-redis.service';
   imports: [
     TypegooseModelModule.forFeature([User, RoleMenu]),
     PassportModule,
-    MenuModule,
+    forwardRef(() => MenuModule),
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: process.env.JWT_SECRET,

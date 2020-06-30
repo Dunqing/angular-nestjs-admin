@@ -25,7 +25,7 @@ services:
     image: ela
     restart: always
     ports:
-      - 3301:3301
+      - 4221:4221
     environment: 
       MONGO_HOST: mongo
       REDIS_HOST: redis
@@ -34,7 +34,7 @@ services:
 
   mongo-express:
     image: mongo-express
-    restart: always
+    restart: alwagitys
     ports:
       - 8081:8081
 

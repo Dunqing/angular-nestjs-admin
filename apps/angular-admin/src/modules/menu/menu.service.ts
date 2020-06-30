@@ -75,6 +75,7 @@ export class MenuService {
   async getMergeMenu(
     _id?: Types.ObjectId | string | null,
     someMenus?: Array<DocumentType<Menu>>,
+    containParent = true
   ): Promise<Menu[]> {
     const result = [];
     let menus: Array<DocumentType<Menu>> = [];
@@ -106,22 +107,28 @@ export class MenuService {
       }
       return { ...(menu.toObject ? menu.toObject() : menu), children: result };
     }
-
     // 便利一遍数据拿顶层的
     let menuIndex: any = 0;
     while (menuIndex < menus.length) {
-      const menu = menus[menuIndex];
+      const menu: DocumentType<Menu> = menus[menuIndex];
+      console.log(menu._id, menu)
       if (
         (!_id && !menu.pid) ||
         (_id === undefined && !menu.pid) ||
-        menu.id === Number(_id)
+        menu._id.equals(_id)
       ) {
         menus.splice(menuIndex, 1);
         const mergeMenu = await findAllChild(menu);
         menuIndex = 0
-        result.push(mergeMenu);
         if (_id) {
+          if (!containParent) { // 不包含父项
+            result.push(...mergeMenu.children)
+          } else {
+            result.push(mergeMenu)
+          }
           break;
+        } else {
+          result.push(mergeMenu);
         }
       } else {
         menuIndex++;

@@ -102,9 +102,9 @@ export class UserService {
                     {
                       $ne: ['$permissionIdentifier', ''],
                     },
-                    {
-                      $eq: ['$type', 1],
-                    },
+                    // {
+                    //   $eq: ['$type', 1],
+                    // },
                     {
                       $in: ['$_id', '$$menus.menuId'],
                     },
@@ -196,9 +196,9 @@ export class UserService {
       });
   }
 
-  async currentUserMenu(user: any): Promise<any> {
+  getCurrentUserMenus(user: User) {
     const roles = user.roles.map(item => {
-      return new Types.ObjectId(item._id);
+      return new Types.ObjectId((item as any)._id);
     });
     return this.roleMenu
       .aggregate([
@@ -238,12 +238,18 @@ export class UserService {
             as: 'menus', //满足 localField与foreignField的信息加入orderlists集合
           },
         },
-      ])
-      .then(menus => {
+      ]).then((menus) => {
         if (!menus || (menus && !menus.length)) {
           return [];
         }
-        return this.menuService.getMergeMenu(null, menus[0].menus);
+        return menus[0].menus
+      })
+  }
+
+  async currentUserMenu(user: User): Promise<any> {
+    return this.getCurrentUserMenus(user)
+      .then(menus => {
+        return this.menuService.getMergeMenu(null, menus);
       });
     // console.log(menus[0].menus)
   }

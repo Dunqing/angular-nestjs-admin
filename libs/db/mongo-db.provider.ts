@@ -8,7 +8,7 @@ export const mongoProvider = {
     const RECONNET_INTERVAL = 6000;
 
     const connection = () => {
-      const url = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/equipment-leasing`
+      const url = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.DATABASE_NAME}`
       return mongoose.connect(url, {
         useNewUrlParser: true,
         useUnifiedTopology: true,

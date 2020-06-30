@@ -1,13 +1,18 @@
+/*
+ * @Author: your name
+ * @Date: 2020-06-26 23:55:01
+ * @LastEditTime: 2020-06-30 17:48:47
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \angular-nestjs-admin\apps\angular-admin\src\modules\user\passport\jwt.guard.ts
+ */ 
 import { Injectable, ExecutionContext } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
-import {
-  PERMISSION_IDENTIFIER,
-  PERMISSION_NAME_PREFIX,
-} from '../../../constants/meta.constant';
-import { UnauthorizedError } from 'apps/equipment-leasing-admin/src/errors/unauthorized.error';
-import { ForbiddenError } from '../../../errors/forbidden.error';
+import { UnauthorizedError } from '@app/admin/errors/unauthorized.error';
+import { PERMISSION_IDENTIFIER, PERMISSION_NAME_PREFIX } from '@app/admin/constants/meta.constant';
+import { ForbiddenError } from '@app/admin/errors/forbidden.error';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {

@@ -9,7 +9,7 @@ ENV PM2_SECRET_KEY zvtz2lcn2h81ufk
 COPY package.json yarn.lock pm2.json ./
 RUN yarn install
 COPY . .
-RUN yarn build ela
+RUN yarn build nga
 # Install app dependencies
 ENV NPM_CONFIG_LOGLEVEL warn
 # RUN npm install --production
