@@ -13,11 +13,11 @@ services:
       volumes: 
         - mongo_db_data:/data/admin/mongo
   
-  ela: 
+  nest-admin: 
     depends_on: 
       - redis
       - mongo
-    image: ela
+    image: nest-admin
     restart: always
     ports:
       - 4221:4221
@@ -25,7 +25,7 @@ services:
       MONGO_HOST: mongo
       REDIS_HOST: redis
     volumes: 
-      - nest_app:/app
+      - nest_admin:/app
 
   mongo-express:
     image: mongo-express
