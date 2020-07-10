@@ -10,6 +10,8 @@ services:
   mongo:
       image: mongo
       restart: always
+      ports:
+        - 27017:27017
       volumes: 
         - mongo_db_data:/data/admin/mongo
   
