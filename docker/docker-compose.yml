@@ -19,14 +19,15 @@ services:
     volumes:
       - angular_mongo_db_data:/data/admin/mongo
 
-  admin:
+  angular-nest-admin:
     depends_on:
       - redis
       - mongo
     build:
       context: ..
+    container_name: angular-nest-admin
     networks:
-      - nginx-networks
+      - nginx-network
       - angular_nest_admin_network
     restart: always
     ports:
@@ -46,6 +47,6 @@ volumes:
   angular_mongo_db_data:
 
 networks:
-  nginx-networks:
+  nginx-network:
     external: true
   angular_nest_admin_network:
