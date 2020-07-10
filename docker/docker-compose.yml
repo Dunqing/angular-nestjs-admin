@@ -5,7 +5,7 @@ services:
     image: redis
     container_name: angular_redis
     volumes:
-      - redis_db_data:/data/admin/redis
+      - angular_redis_db_data:/data/admin/redis
     networks:
       - angular_nest_admin_network
     restart: always
@@ -17,7 +17,7 @@ services:
     networks:
       - angular_nest_admin_network
     volumes:
-      - mongo_db_data:/data/admin/mongo
+      - angular_mongo_db_data:/data/admin/mongo
 
   admin:
     depends_on:
