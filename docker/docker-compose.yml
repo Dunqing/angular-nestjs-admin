@@ -1,0 +1,51 @@
+version: "3"
+
+services:
+  redis:
+    image: redis
+    container_name: angular_redis
+    volumes:
+      - redis_db_data:/data/admin/redis
+    networks:
+      - angular_nest_admin_network
+    restart: always
+
+  mongo:
+    image: mongo
+    restart: always
+    container_name: angular_mongo
+    networks:
+      - angular_nest_admin_network
+    volumes:
+      - mongo_db_data:/data/admin/mongo
+
+  admin:
+    depends_on:
+      - redis
+      - mongo
+    build:
+      context: ..
+    networks:
+      - nginx-networks
+      - angular_nest_admin_network
+    restart: always
+    ports:
+      - 4221:4221
+    environment:
+      MONGO_HOST: mongo
+      REDIS_HOST: redis
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+
+volumes:
+  angular_redis_db_data:
+  angular_mongo_db_data:
+
+networks:
+  nginx-networks:
+    external: true
+  angular_nest_admin_network:
