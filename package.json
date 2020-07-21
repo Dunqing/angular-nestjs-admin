@@ -40,7 +40,7 @@
     "class-validator": "^0.12.2",
     "global": "^4.4.0",
     "ioredis": "^4.16.3",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "mongoose": "^5.9.13",
     "mongoose-aggregate-paginate-v2": "^1.0.4",
     "mongoose-auto-increment": "^5.0.1",
