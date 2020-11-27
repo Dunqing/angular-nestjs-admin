@@ -7633,9 +7633,9 @@ symbol-tree@^3.2.2:
   integrity sha1-QwY30ki6d+B4iDlR+5qg7tfGP6I=
 
 systeminformation@^4.23.3:
-  version "4.26.5"
-  resolved "https://registry.npm.taobao.org/systeminformation/download/systeminformation-4.26.5.tgz#d2dc77d4cc54b38345d552fcfd00344f49a964a4"
-  integrity sha1-0tx31MxUs4NF1VL8/QA0T0mpZKQ=
+  version "4.30.6"
+  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-4.30.6.tgz#b56074968f2ea28ac118f23221c449b0f763db22"
+  integrity sha512-NV7zo9NU7fWSuiCORZmMLe90cFrrTS6jfalrQ0/5B7JGQ2ei15c2gmfICBwWdmviyv/FXAFVReySxOtDDkppqw==
 
 table@^5.2.3:
   version "5.4.6"
