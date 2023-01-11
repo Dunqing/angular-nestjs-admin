@@ -37,7 +37,7 @@
     "bcryptjs": "^2.4.3",
     "child-process-promise": "^2.2.1",
     "class-transformer": "^0.2.3",
-    "class-validator": "^0.12.2",
+    "class-validator": "^0.14.0",
     "global": "^4.4.0",
     "ioredis": "^4.16.3",
     "lodash": "^4.17.15",
